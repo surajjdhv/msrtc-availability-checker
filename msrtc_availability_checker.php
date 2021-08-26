@@ -73,6 +73,8 @@ Loop::addPeriodicTimer(300, function ($timer) use ($http, $cookies, $dom) {
 			Loop::cancelTimer($timer);
 		} else {
 			echo "No seats available, will check back in 5 minutes ... \n";
+
+			error_log('Last ran: ' . date("m/d/Y h:i:s a", time()) . PHP_EOL, 3, __DIR__ . '/logs.txt');
 		}
 	} else {
 		echo "Invalid response! Notifying ... \n";
