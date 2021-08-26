@@ -34,9 +34,8 @@ function notify($title, $message)
 	return $response->getStatusCode() == 200;
 }
 
-// Run loop after 5 minutes after finishing the callback
+// Run loop every 5 minutes after finishing the callback
 Loop::addPeriodicTimer(300, function ($timer) use ($http, $cookies, $dom) {
-	
 	echo "Sending query ... \n";
 
 	$response = $http->get('https://public.msrtcors.com/ticket_booking/availability_lookup.php', [
@@ -51,36 +50,37 @@ Loop::addPeriodicTimer(300, function ($timer) use ($http, $cookies, $dom) {
 
 	$allSeats = $dom->loadStr((string) $response->getBody())->find('#seat_layout td')->toArray();
 
-	// Something wrong in response
-	if (! count($allSeats)) {
+	if (count($allSeats)) {
+		$availableSeats = array_filter($allSeats, function ($seat) {
+			return str_contains($seat, 'background-color:#00FFFF');
+		});
+	
+		if (count($availableSeats)) {
+			echo "Seats available ... \n";
+	
+			$availableSeatNumbers = array_map(function ($seat) {
+				return trim($seat->find('td')->innerHtml);
+			}, $availableSeats);
+		
+			sort($availableSeatNumbers);
+	
+			echo "Sending notification ... \n";
+		
+			notify('Seats available', 'Seats are available for ' . $_ENV['BUS_TIME'] . ' with seat numbers ' . implode(', ', $availableSeatNumbers));
+	
+			echo "Stopping process ... \n";
+			
+			Loop::cancelTimer($timer);
+		} else {
+			echo "No seats available, will check back in 5 minutes ... \n";
+		}
+	} else {
+		echo "Invalid response! Notifying ... \n";
+		
 		notify('Oops!', 'Something is wrong in response!');
 		
 		echo "Stopping process ... \n";
 		
 		Loop::cancelTimer($timer);
-	}
-
-	$availableSeats = array_filter($allSeats, function ($seat) {
-		return str_contains($seat, 'background-color:#00FFFF');
-	});
-
-	if (count($availableSeats)) {
-		echo "Seats available ... \n";
-
-		$availableSeatNumbers = array_map(function ($seat) {
-			return trim($seat->find('td')->innerHtml);
-		}, $availableSeats);
-	
-		sort($availableSeatNumbers);
-
-		echo "Sending notification ... \n";
-	
-		notify('Seats available', 'Seats are available for ' . $_ENV['BUS_TIME'] . ' with seat numbers ' . implode(', ', $availableSeatNumbers));
-
-		echo "Stopping process ... \n";
-		
-		Loop::cancelTimer($timer);
-	} else {
-		echo "No seats available, will check back in 5 minutes ... \n";
 	}
 });
