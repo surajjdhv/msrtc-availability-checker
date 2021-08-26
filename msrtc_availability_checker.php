@@ -35,7 +35,7 @@ function notify($title, $message)
 }
 
 // Run loop every 5 minutes after finishing the callback
-Loop::addPeriodicTimer(300, function ($timer) use ($http, $cookies, $dom) {
+Loop::addPeriodicTimer(1, function ($timer) use ($http, $cookies, $dom) {
 	echo "Sending query ... \n";
 
 	$response = $http->get('https://public.msrtcors.com/ticket_booking/availability_lookup.php', [
@@ -52,7 +52,7 @@ Loop::addPeriodicTimer(300, function ($timer) use ($http, $cookies, $dom) {
 
 	if (count($allSeats)) {
 		$availableSeats = array_filter($allSeats, function ($seat) {
-			return str_contains($seat, 'background-color:#00FFFF');
+			return str_contains($seat->outerHtml, 'background-color:#00FFFF');
 		});
 	
 		if (count($availableSeats)) {
