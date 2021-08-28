@@ -48,7 +48,7 @@ $xml = <<<XML
 XML;
 
 // Run loop every 5 minutes after finishing the callback
-Loop::addPeriodicTimer(1, function ($timer) use ($http, $xml) {
+Loop::addPeriodicTimer(300, function ($timer) use ($http, $xml) {
 	echo "Sending query ... \n";
 
 	$response = $http->post('http://api.msrtcors.com:8083/MSRTCMobileServices/MSRTCMobileService?wsdl', [
