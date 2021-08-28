@@ -9,7 +9,7 @@ require __DIR__ . '/vendor/autoload.php';
 Dotenv\Dotenv::createImmutable(__DIR__)->safeLoad();
 
 // Setup http client
-$http = $client = new Client();
+$http = new Client();
 
 function notify($title, $message)
 {
