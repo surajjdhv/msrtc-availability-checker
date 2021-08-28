@@ -1,5 +1,5 @@
 {
-    "name": "suraj/busava",
+    "name": "surajsjdhv/msrtc_availability_checker",
     "authors": [
         {
             "name": "Suraj Jadhav",
@@ -9,7 +9,6 @@
     "require": {
         "react/event-loop": "^1.2",
         "guzzlehttp/guzzle": "^7.0",
-        "paquettg/php-html-parser": "^3.1",
         "vlucas/phpdotenv": "^5.3"
     }
 }
