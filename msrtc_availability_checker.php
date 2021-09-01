@@ -149,17 +149,23 @@ function checkExtraService($timer)
 
 	$services = array_map(fn ($service) => (array) $service, $responseBody['service']);
 
-	$previousServicesResponse = $services;
+	if (! is_null($previousServicesResponse)) {
+		$extraServices = Collection::from($previousServicesResponse)
+			->diff($services)
+			->toArray();
 
-	$extraServices = Collection::from($previousServicesResponse)
-		->diff($services)
-		->toArray();
+		if (count($extraServices)) {
+			echo "Extra service found! Notifying ... \n";
 
-	if (count($extraServices)) {
-		echo "Extra service found! Notifying ... \n";
+			notify('New services available', 'New services available with timings ' . implode(', ', array_column($extraServices, 'departureTime')));
 
-		notify('New services available', 'New services available with timings ' . implode(', ', array_column($extraServices, 'departureTime')));
+			echo "Stopping process ... \n";
+
+			Loop::cancelTimer($timer);
+		}
 	}
+
+	$previousServicesResponse = $services;
 
 	echo "No extra service found! \n";
 }
